@@ -1,0 +1,59 @@
+[project]
+name = "nonebot_plugin_liteperm"
+version = "0.0.1.dev1"
+description = "基于权限节点/权限组/特殊权限的Nonebot权限管理插件。"
+authors = [{ name = "JohnRichard4096", email = "windowserror@163.com" }]
+dependencies = [
+    "nonebot2>=2.2.0",
+    "nonebot-adapter-onebot>=2.0.0",
+    "nonebot-plugin-localstore>=0.7",
+]
+requires-python = ">=3.9, <4.0"
+readme = "README.md"
+license = { text = "GPL-3.0-or-later" }
+keywords = ['nonebot']
+[build-system]
+requires = ['pdm-backend']
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
+
+[project.urls]
+"Homepage" = "https://github.com/LiteSuggarDEV/plugin-liteperm"
+"Source" = "https://github.com/LiteSuggarDEV/plugin-liteperm"
+"Issue Tracker" = "https://github.com/LiteSuggarDEV/plugin-liteperm/issues"
+
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "F",     # Pyflakes
+    "W",     # pycodestyle warnings
+    "E",     # pycodestyle errors
+    "UP",    # pyupgrade
+    "ASYNC", # flake8-async
+    "C4",    # flake8-comprehensions
+    "T10",   # flake8-debugger
+    "PYI",   # flake8-pyi
+    "PT",    # flake8-pytest-style
+    "Q",     # flake8-quotes
+    "RUF",   # Ruff-specific rules
+    "I",     # isort
+    "PERF",  # pylint-performance
+]
+ignore = [
+    "E402",   # module-import-not-at-top-of-file
+    "E501",   # line-too-long
+    "UP037",  # quoted-annotation
+    "RUF001", # ambiguous-unicode-character-string
+    "RUF002", # ambiguous-unicode-character-docstring
+    "RUF003", # ambiguous-unicode-character-comment
+]
+
+[tool.pyright]
+typeCheckingMode = "basic"
