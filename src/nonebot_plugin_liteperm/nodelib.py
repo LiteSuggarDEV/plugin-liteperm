@@ -1,91 +1,51 @@
-class Node:
-    data: dict[str, dict[str, dict | bool]]
-    node_list: list[str]
-    permissions: str = ""
+import json
 
-    def __init__(self, data: dict, node: str = ""):
-        self.data = data["nodes"]
-        self.node_list = node.split(".")
 
-    @property
-    def nodes(self) -> dict:
-        return self.data
+class Permissions:
+    def __init__(self):
+        # 初始化权限数据，存储根节点的子节点
+        self.permissions_data = {}
 
-    def set_value(self, n_value: bool):
-        node_list = self.node_list
-        data = self.data
-        dict_tmp = data
-        for index, value in enumerate(node_list):
-            if index == len(node_list) - 1:
-                if value == "*":
-                    dict_tmp["__all__"] = n_value
-                else:
-                    dict_tmp[value]["__has__"] = n_value
-            elif dict_tmp.get(value):
-                dict_tmp = dict_tmp[value]
+    def add_permission(self, node: str, has_permission: bool):
+        node_parts = node.split(".")
+        current_children = self.permissions_data  # 当前层级的子节点字典
+
+        for i, part in enumerate(node_parts):
+            # 不存在创建新节点
+            if part not in current_children:
+                current_children[part] = {"has_permission": False, "children": {}}
+            current_node = current_children[part]
+            # 最后一个部分设权
+            if i == len(node_parts) - 1:
+                current_node["has_permission"] = has_permission
+            # 下一层
+            current_children = current_node["children"]
+
+    def check_permission(self, node: str) -> bool:
+        node_parts = node.split(".")
+        current_children = self.permissions_data  # 当前层级的子节点字典
+        current_node = None
+
+        for part in node_parts:
+            if part in current_children:
+                current_node = current_children[part]
+                current_children = current_node["children"]
+            elif "*" in current_children:
+                current_node = current_children["*"]
+                current_children = current_node["children"]
             else:
-                dict_tmp[value] = {
-                    "__has__": True,
-                    "__all__": False,
-                }
-                dict_tmp = dict_tmp[value]
+                return False  # 没有找到节点或通配符
 
-    def has(self) -> bool:
-        data = self.data
-        node_list = self.node_list
-        dict_tmp = data
-        for index, value in enumerate(node_list):
-            if isall := dict_tmp.get("__all__"):
-                return True
-            elif isall is None:
-                dict_tmp["__all__"] = False
-            if index == len(node_list) - 1:
-                if value in dict_tmp:
-                    if has := (dict_tmp[value]).get("__has__") is True:
-                        return True
-                    elif has is None:
-                        dict_tmp[value]["__has__"] = True
-                        return True
-                    else:
-                        return False
-                elif dict_tmp.get(value):
-                    dict_tmp = dict_tmp[value]
-                else:
-                    return False
-        return False
+        # 返回最终节点的权限
+        return current_node["has_permission"] if current_node else False
 
-    def _print_dict_recursive(self, value: dict | None = None, path=""):
-        d = self.data.copy() if value is None else value
-        for key, value in d.items():
-            if key == "__all__":
-                if value is True:
-                    full_path = f"{path}.*" if path else "*"
-                    self.permissions += f"{full_path} {value}\n"
-            elif key == "__has__":
-                values = [v for k, v in d.items()]
-                for i in values:
-                    if isinstance(i, dict):
-                        break
-                else:
-                    if value is True:
-                        full_path = path if path else "."
-                        self.permissions += f"{full_path} {value}\n"
+    def save_to_file(self, filename: str):
+        with open(filename, "w") as f:
+            json.dump(self.permissions_data, f, indent=4)
 
-                if value is False:
-                    full_path = path if path else "."
-                    self.permissions += f"{full_path} {value}\n"
-            elif isinstance(value, dict):
-                new_path = f"{path}.{key}" if path else key
-                # 先递归处理子字典
-                self._print_dict_recursive(value, new_path)
-                # 检查子字典处理后是否需要打印当前路径
-                if "__all__" not in value and "__has__" not in value:
-                    self.permissions += f"{new_path} {value}\n"
-            else:
-                full_path = f"{path}.{key}" if path else key
-                self.permissions += f"{full_path} {value}\n"
+    def load_from_file(self, filename: str):
+        with open(filename) as f:
+            self.permissions_data = json.load(f)
 
-    @property
-    def permission(self) -> str:
-        self._print_dict_recursive()
-        return self.permissions
+
+permissions = Permissions()
