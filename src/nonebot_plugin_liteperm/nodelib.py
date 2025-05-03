@@ -1,25 +1,76 @@
 import json
+from copy import deepcopy
+from dataclasses import dataclass, field
 
 
+@dataclass
 class Permissions:
-    def __init__(self):
-        # 初始化权限数据，存储根节点的子节点
-        self.permissions_data = {}
+    permissions_data: dict = field(default_factory=dict)
+    __permissions_str: str = ""
 
-    def add_permission(self, node: str, has_permission: bool):
+    def __str__(self):
+        return json.dumps(self.permissions_data)
+
+    def __dict__(self):
+        return self.permissions_data
+
+    def __search_perm(self, data, parent_key="", result=None):
+        if result is None:
+            result = []
+
+        for key in data:
+            node = data[key]
+            current_path = f"{parent_key}.{key}" if parent_key else key
+
+            # 检查当前节点权限
+            if node.get("has_permission", False):
+                result.append(f"{current_path} true")
+
+            if node.get("children", {}) != {}:
+                children = node.get("children", {})
+                self.__search_perm(children, current_path, result)
+        return result
+
+    def __dump_to_str(
+        self,
+        overwrite: bool = False,
+    ):
+        if overwrite:
+            self.__permissions_str = ""
+        data = self.permissions_data
+        data = deepcopy(data)
+        for d in self.__search_perm(data):
+            self.__permissions_str += f"{d}\n"
+
+    def del_permission(self, node: str):
+        node_parts = node.split(".")
+        current_children = self.permissions_data  # 当前层级的子节点字典
+        try:
+            for i, part in enumerate(node_parts):
+                if part not in current_children:
+                    return  # 节点不存在，无法删除
+                current_node = current_children[part]
+                if i == len(node_parts) - 1:
+                    del current_children[part]
+                current_children = current_node["children"]
+        finally:
+            self.__dump_to_str(overwrite=True)
+
+    def set_permission(self, node: str, has_permission: bool, has_parent: bool = False):
         node_parts = node.split(".")
         current_children = self.permissions_data  # 当前层级的子节点字典
 
         for i, part in enumerate(node_parts):
             # 不存在创建新节点
             if part not in current_children:
-                current_children[part] = {"has_permission": False, "children": {}}
+                current_children[part] = {"has_permission": has_parent, "children": {}}
             current_node = current_children[part]
             # 最后一个部分设权
             if i == len(node_parts) - 1:
                 current_node["has_permission"] = has_permission
             # 下一层
             current_children = current_node["children"]
+        self.__dump_to_str(overwrite=True)
 
     def check_permission(self, node: str) -> bool:
         node_parts = node.split(".")
@@ -42,10 +93,38 @@ class Permissions:
     def save_to_file(self, filename: str):
         with open(filename, "w") as f:
             json.dump(self.permissions_data, f, indent=4)
+        self.__dump_to_str(overwrite=True)
 
     def load_from_file(self, filename: str):
         with open(filename) as f:
             self.permissions_data = json.load(f)
+        self.__dump_to_str(overwrite=True)
+
+    def dump_data(self) -> dict[str, dict | str]:
+        return self.permissions_data.copy()
+
+    @property
+    def data(self) -> str:
+        return self.permissions_data.copy()
+
+    @property
+    def perm_str(self) -> str:
+        return self.permissions_str
+
+    @property
+    def permissions_str(self) -> str:
+        return self.__permissions_str
 
 
-permissions = Permissions()
+# 此处仅用于测试，理论上运行时不会触发。
+if __name__ == "__main__":
+    permissions = Permissions()
+    permissions.set_permission("user.read", True)
+    permissions.set_permission("user.write", True)
+    permissions.set_permission("user.*", True)
+    permissions.set_permission("user", True)
+    permissions.set_permission("children", True)
+    permissions.set_permission("children.read", True)
+    permissions.set_permission("children.children", True)
+    print(permissions.permissions_str)
+    print(json.dumps(permissions.dump_data(), indent=4))
