@@ -1,18 +1,18 @@
 import json
 from copy import deepcopy
-from dataclasses import dataclass, field
+from typing import Any
 
 
-@dataclass
 class Permissions:
-    permissions_data: dict = field(default_factory=dict)
+    permissions_data: dict[str, str | dict | bool]
+
+    def __init__(self, permissions_data: dict[str, str | dict | bool] = {}) -> None:
+        self.permissions_data = permissions_data
+
     __permissions_str: str = ""
 
     def __str__(self):
         return json.dumps(self.permissions_data)
-
-    def __dict__(self):
-        return self.permissions_data
 
     def __search_perm(self, data, parent_key="", result=None):
         if result is None:
@@ -44,7 +44,7 @@ class Permissions:
 
     def del_permission(self, node: str):
         node_parts = node.split(".")
-        current_children = self.permissions_data  # 当前层级的子节点字典
+        current_children: dict[str, Any] = self.permissions_data  # 当前层级的子节点字典
         try:
             for i, part in enumerate(node_parts):
                 if part not in current_children:
@@ -58,7 +58,7 @@ class Permissions:
 
     def set_permission(self, node: str, has_permission: bool, has_parent: bool = False):
         node_parts = node.split(".")
-        current_children = self.permissions_data  # 当前层级的子节点字典
+        current_children: dict[str, Any] = self.permissions_data  # 当前层级的子节点字典
 
         for i, part in enumerate(node_parts):
             # 不存在创建新节点
@@ -74,7 +74,7 @@ class Permissions:
 
     def check_permission(self, node: str) -> bool:
         node_parts = node.split(".")
-        current_children = self.permissions_data  # 当前层级的子节点字典
+        current_children: dict[str, Any] = self.permissions_data  # 当前层级的子节点字典
         current_node = None
 
         for part in node_parts:
@@ -100,11 +100,11 @@ class Permissions:
             self.permissions_data = json.load(f)
         self.__dump_to_str(overwrite=True)
 
-    def dump_data(self) -> dict[str, dict | str]:
+    def dump_data(self) -> dict[str, Any]:
         return self.permissions_data.copy()
 
     @property
-    def data(self) -> str:
+    def data(self) -> dict[str, Any]:
         return self.permissions_data.copy()
 
     @property
@@ -118,7 +118,7 @@ class Permissions:
 
 # 此处仅用于测试，理论上运行时不会触发。
 if __name__ == "__main__":
-    permissions = Permissions()
+    permissions = Permissions({})
     permissions.set_permission("user.read", True)
     permissions.set_permission("user.write", True)
     permissions.set_permission("user.*", True)
