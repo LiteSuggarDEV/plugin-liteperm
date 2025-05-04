@@ -25,7 +25,8 @@ class Permissions:
             # 检查当前节点权限
             if node.get("has_permission", False):
                 result.append(f"{current_path} true")
-
+            elif node.get("explicit_hasnt", False):
+                result.append(f"{current_path} false")
             if node.get("children", {}) != {}:
                 children = node.get("children", {})
                 self.__search_perm(children, current_path, result)
@@ -68,6 +69,7 @@ class Permissions:
             # 最后一个部分设权
             if i == len(node_parts) - 1:
                 current_node["has_permission"] = has_permission
+                current_node["explicit_hasnt"] = not has_permission
             # 下一层
             current_children = current_node["children"]
         self.__dump_to_str(overwrite=True)
@@ -90,12 +92,12 @@ class Permissions:
         # 返回最终节点的权限
         return current_node["has_permission"] if current_node else False
 
-    def save_to_file(self, filename: str):
+    def dump_to_file(self, filename: str):
         with open(filename, "w") as f:
             json.dump(self.permissions_data, f, indent=4)
         self.__dump_to_str(overwrite=True)
 
-    def load_from_file(self, filename: str):
+    def load_from_json(self, filename: str):
         with open(filename) as f:
             self.permissions_data = json.load(f)
         self.__dump_to_str(overwrite=True)
@@ -106,6 +108,11 @@ class Permissions:
     @property
     def data(self) -> dict[str, Any]:
         return self.permissions_data.copy()
+
+    @data.setter
+    def data(self, data: dict[str, Any]):
+        self.permissions_data = data
+        self.__dump_to_str(overwrite=True)
 
     @property
     def perm_str(self) -> str:

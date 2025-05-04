@@ -1,13 +1,18 @@
 import json
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
-from nonebot_plugin_localstore import get_plugin_data_dir
+import tomli
+import tomli_w
+from nonebot_plugin_localstore import get_plugin_config_dir, get_plugin_data_dir
 from pydantic import BaseModel
 
 plugin_data_dir = get_plugin_data_dir()
+config_dir = get_plugin_config_dir()
 os.makedirs(plugin_data_dir, exist_ok=True)
+os.makedirs(config_dir, exist_ok=True)
 
 
 class BasicDataModel(BaseModel, extra="allow"):
@@ -19,8 +24,44 @@ class BasicDataModel(BaseModel, extra="allow"):
         raise AttributeError(
             f"'{self.__class__.__name__}' object has no attribute '{item}'"
         )
+
+
+class UserData(BasicDataModel):
+    permission_groups: list[str] = []
+    permissions: dict[str, str | dict | bool] = {}
+
+
+class GroupData(BasicDataModel):
+    permission_groups: list[str] = []
+    permissions: dict[str, str | dict | bool] = {}
+
+
+class PermissionGroupData(BasicDataModel):
+    permissions: dict[str, str | dict | bool] = {}
+
+
 class Config(BasicDataModel):
     default_permission_group_name: str = "default"
+
+    def save_to_toml(self, path: Path):
+        """保存配置到 TOML 文件"""
+        with path.open("wb") as f:
+            tomli_w.dump(self.model_dump(), f)
+
+    @classmethod
+    def load_from_toml(cls, path: Path) -> "Config":
+        """从 TOML 文件加载配置"""
+        if not path.exists():
+            return cls()
+        with path.open("rb") as f:
+            data: dict[str, Any] = tomli.load(f)
+        # 自动更新配置文件
+        current_config = cls().model_dump()
+        updated_config = {**current_config, **data}
+        config_instance = cls(**updated_config)
+        config_instance.validate()  # 校验配置
+        return config_instance
+
 
 @dataclass
 class Data_Manager:
@@ -28,10 +69,17 @@ class Data_Manager:
     group_data_path: Path = plugin_data_dir / "group_data"
     user_data_path: Path = plugin_data_dir / "user_data"
     permission_groups_path: Path = plugin_data_dir / "permission_groups"
+    config_path: Path = config_dir / "config.toml"
 
     os.makedirs(group_data_path, exist_ok=True)
     os.makedirs(user_data_path, exist_ok=True)
     os.makedirs(permission_groups_path, exist_ok=True)
+
+    config: Config = field(default_factory=Config.load_from_toml, init=False)
+
+    if not config_path.exists():
+        config = Config()
+        config.save_to_toml(config_path)
 
     def save_user_data(self, user_id: str, data: dict[str, str | dict | bool]):
         UserData.model_validate(data)
@@ -63,13 +111,17 @@ class Data_Manager:
         with open(data_path) as f:
             return GroupData(**json.load(f))
 
-    def get_permission_group_data(self, group_name: str):
+    def get_permission_group_data(
+        self, group_name: str, new: bool = False
+    ) -> PermissionGroupData | None:
         data_path = self.permission_groups_path / f"{group_name}.json"
-        if not data_path.exists():
+        if not data_path.exists() and new:
             data = PermissionGroupData()
             with open(data_path, "w") as f:
                 json.dump(data.model_dump(), f)
             return data
+        elif not data_path.exists():
+            return None
         with open(data_path) as f:
             return PermissionGroupData(**json.load(f))
 
@@ -82,20 +134,6 @@ class Data_Manager:
             return data
         with open(data_path) as f:
             return UserData(**json.load(f))
-
-
-class UserData(BasicDataModel):
-    permission_groups: list[str] = []
-    permissions: dict[str, str | dict | bool] = {}
-
-
-class GroupData(BasicDataModel):
-    permission_groups: list[str] = []
-    permissions: dict[str, str | dict | bool] = {}
-
-
-class PermissionGroupData(BasicDataModel):
-    permissions: dict[str, str | dict | bool] = {}
 
 
 data_manager = Data_Manager()
