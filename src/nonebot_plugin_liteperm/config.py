@@ -136,6 +136,10 @@ class Data_Manager:
         with open(data_path) as f:
             return PermissionGroupData(**json.load(f))
 
+    def remove_permission_group(self, group: str):
+        data_path = self.permission_groups_path / f"{group}.json"
+        if data_path.exists():
+            os.remove(data_path)
     def get_user_data(self, user_id: str):
         data_path = self.user_data_path / f"{user_id}.json"
         if not data_path.exists():
