@@ -111,7 +111,7 @@ def get_handler(
     handlers = {
         "permission": PermissionOperation(),
         "parent": ParentGroupHandler(),
-        "perm_perm_group": PermissionGroupHandler(),
+        "perm_group": PermissionGroupHandler(),
     }
     return handlers[action_type] if action_type in handlers else None
 
