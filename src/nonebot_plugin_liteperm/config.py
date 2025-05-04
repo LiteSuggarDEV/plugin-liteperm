@@ -41,7 +41,7 @@ class PermissionGroupData(BasicDataModel):
 
 
 class Config(BasicDataModel):
-    default_permission_group_name: str = "default"
+    config_version: int = 1
 
     def save_to_toml(self, path: Path):
         """保存配置到 TOML 文件"""
@@ -71,15 +71,16 @@ class Data_Manager:
     permission_groups_path: Path = plugin_data_dir / "permission_groups"
     config_path: Path = config_dir / "config.toml"
 
-    os.makedirs(group_data_path, exist_ok=True)
-    os.makedirs(user_data_path, exist_ok=True)
-    os.makedirs(permission_groups_path, exist_ok=True)
+    def init(self):
+        os.makedirs(self.group_data_path, exist_ok=True)
+        os.makedirs(self.user_data_path, exist_ok=True)
+        os.makedirs(self.permission_groups_path, exist_ok=True)
 
-    config: Config = field(default=Config())
+        config: Config = field(default=Config())
 
-    if not config_path.exists():
-        config = Config()
-        config.save_to_toml(config_path)
+        if not self.config_path.exists():
+            config = Config()
+            config.save_to_toml(self.config_path)
 
     def save_user_data(self, user_id: str, data: dict[str, str | dict | bool]):
         UserData.model_validate(data)
