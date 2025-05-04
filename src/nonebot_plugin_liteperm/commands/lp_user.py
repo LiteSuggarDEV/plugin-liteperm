@@ -4,13 +4,12 @@ from nonebot.params import CommandArg
 from nonebot.rule import to_me
 
 from ..API.admin import is_lp_admin
-from ..API.logic_func import both
 from ..command_manager import command
-from ..config import GroupData, PermissionGroupData, UserData, data_manager
+from ..config import data_manager
 from ..nodelib import Permissions
 
 
-@command.command("user", rule=both(is_lp_admin, to_me()))
+@command.command("user", permission=is_lp_admin & to_me()).handle()
 async def lp_user(event: MessageEvent, matcher: Matcher, args: Message = CommandArg()):
     """
     用户权限管理
@@ -73,7 +72,7 @@ async def lp_user(event: MessageEvent, matcher: Matcher, args: Message = Command
                             await matcher.finish(f"未持有节点{args_list[4]}")
                     elif args_list[3] == "list":
                         await matcher.finish(
-                            f"userid:{event.user_id}\n{user_permission.permissions_str()}"
+                            f"userid:{event.user_id}\n{user_permission.permissions_str}"
                         )
                 elif args_list[2] == "parent":
                     perm_group_data = data_manager.get_permission_group_data(
@@ -102,7 +101,7 @@ async def lp_user(event: MessageEvent, matcher: Matcher, args: Message = Command
                                     user_permission.del_permission(node)
                         await matcher.finish("群组权限继承删除完成")
                     elif args_list[3] == "set":
-                        user_permission.data = Permissions(perm_group.dump_data())
+                        user_permission.data = Permissions(perm_group.data).data
                         await matcher.finish("群组权限继承覆盖设置完成")
                 elif args_list[2] == "perm_group":
                     if args_list[3] == "add":

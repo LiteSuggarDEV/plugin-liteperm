@@ -1,12 +1,33 @@
 from collections.abc import Awaitable, Callable
-from dataclasses import dataclass
-from typing import override
+from dataclasses import dataclass, field
+from typing import TypeAlias, override
 
-from nonebot.adapters.onebot.v11 import Event
+from nonebot.adapters.onebot.v11 import (
+    Event,
+    GroupAdminNoticeEvent,
+    GroupBanNoticeEvent,
+    GroupDecreaseNoticeEvent,
+    GroupIncreaseNoticeEvent,
+    GroupMessageEvent,
+    GroupRecallNoticeEvent,
+    GroupRequestEvent,
+    GroupUploadNoticeEvent,
+)
 from nonebot.log import logger
 
-from ..config import data_manager
+from ..config import PermissionGroupData, data_manager
 from ..nodelib import Permissions
+
+GroupEvent: TypeAlias = (
+    GroupIncreaseNoticeEvent
+    | GroupAdminNoticeEvent
+    | GroupBanNoticeEvent
+    | GroupDecreaseNoticeEvent
+    | GroupMessageEvent
+    | GroupRecallNoticeEvent
+    | GroupRequestEvent
+    | GroupUploadNoticeEvent
+)
 
 
 @dataclass
@@ -17,40 +38,27 @@ class PermissionChecker:
         permission: 权限节点
     """
 
-    permission: str
+    permission: str = field(default="")
 
-    def checker(self, k_id: str = "") -> Callable[[Event], Awaitable[bool]]:
+    def checker(self) -> Callable[[Event, str], Awaitable[bool]]:
         """生成可被 Rule 使用的检查器闭包
-
-        Args:
-            k_id (str, optional): 用户/群OD. Defaults to "".
 
         Returns:
             Callable[[Event], Awaitable[bool]]: 供Rule检查的Async函数
         """
 
         # 捕获当前权限值到闭包中
-        current_perm = self.permission
+        current_perm = self.permission if self.permission else ""
 
-        async def _checker(event: Event | None = None) -> bool:
+        async def _checker(event: Event, current_perm=current_perm) -> bool:
             """实际执行检查的协程函数"""
             # 通过闭包访问类变量（self.permission）
-            return (
-                await self._check_permission(event, current_perm)
-                if not k_id
-                else await self._check_permission_on_id(k_id, current_perm)
-            )
+            return await self._check_permission(event, current_perm)
 
         return _checker
 
     async def _check_permission(self, event: Event, perm: str) -> bool:
         raise NotImplementedError("Awaitable '_check_permission' not implemented")
-
-    # 这里需要做显式区分调用
-    async def _check_permission_on_id(self, id: str, current_perm: str) -> bool:
-        return NotImplementedError(
-            "awaitable '__check_permission_on_id' not implemented"
-        )
 
 
 @dataclass
@@ -65,22 +73,15 @@ class UserPermissionChecker(PermissionChecker):
         user_data = data_manager.get_user_data(user_id)
         logger.debug(f"checking user permission {user_id} {perm}")
         perm_groups = user_data.permission_groups
-        for permg in perm_groups:
-            if Permissions(
-                data_manager.get_permission_group_data(permg).permissions
-            ).check_permission(perm):
-                return True
-        return Permissions(user_data.model_dump()).check_permission(perm)
 
-    @override
-    async def _check_permission_on_id(self, uid: str, perm: str) -> bool:
-        user_data = data_manager.get_user_data(uid)
-        logger.debug(f"checking user permission {uid}")
-        perm_groups = user_data.permission_groups
-        for perm_g in perm_groups:
-            if Permissions(
-                data_manager.get_permission_group_data(perm_g).permissions
-            ).check_permission(perm):
+        for permg in perm_groups:
+            if data_manager.get_permission_group_data(permg) is None:
+                raise ValueError(f"permission group {permg} not found")
+            else:
+                group_data: PermissionGroupData = (
+                    data_manager.get_permission_group_data(permg)
+                )  # type: ignore
+            if Permissions(group_data.permissions).check_permission(perm):
                 return True
         return Permissions(user_data.model_dump()).check_permission(perm)
 
@@ -97,29 +98,19 @@ class GroupPermissionChecker(PermissionChecker):
 
     @override
     async def _check_permission(self, event: Event, perm: str) -> bool:
-        if not event.__class__.__name__.startswith("Group") and not self.only_group:
+        if not isinstance(event, GroupEvent) and not self.only_group:
             return True
-        else:
+        elif not isinstance(event, GroupEvent) and self.only_group:
             return False
-        group_id = event.group_id
+        elif isinstance(event, GroupEvent):
+            g_event: GroupEvent = event
+        group_id: str = str(g_event.group_id)
         group_data = data_manager.get_group_data(group_id)
         logger.debug(f"checking group permission {group_id} {perm}")
         perm_groups = group_data.permission_groups
         for permg in perm_groups:
             if Permissions(
-                data_manager.get_permission_group_data(permg).permissions
-            ).check_permission(perm):
-                return True
-        return Permissions(group_data.model_dump()).check_permission(perm)
-
-    @override
-    async def _check_permission_on_id(self, gid: str, perm: str) -> bool:
-        group_data = data_manager.get_group_data(gid)
-        logger.debug(f"checking group permission {gid}")
-        perm_groups = group_data.permission_groups
-        for perm_g in perm_groups:
-            if Permissions(
-                data_manager.get_permission_group_data(perm_g).permissions
+                data_manager.get_permission_group_data(permg).permissions  # type: ignore
             ).check_permission(perm):
                 return True
         return Permissions(group_data.model_dump()).check_permission(perm)

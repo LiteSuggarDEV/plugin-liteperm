@@ -59,7 +59,7 @@ class Config(BasicDataModel):
         current_config = cls().model_dump()
         updated_config = {**current_config, **data}
         config_instance = cls(**updated_config)
-        config_instance.validate()  # 校验配置
+        config_instance.model_validate(updated_config)  # 校验配置
         return config_instance
 
 
@@ -75,7 +75,7 @@ class Data_Manager:
     os.makedirs(user_data_path, exist_ok=True)
     os.makedirs(permission_groups_path, exist_ok=True)
 
-    config: Config = field(default_factory=Config.load_from_toml, init=False)
+    config: Config = field(default=Config())
 
     if not config_path.exists():
         config = Config()
