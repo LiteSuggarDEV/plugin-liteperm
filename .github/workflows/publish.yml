@@ -19,7 +19,6 @@ jobs:
         run: uv python install
 
       - name: Publish to PyPI
-        if: ${{ steps.versioncheck.outputs.local_version_is_higher == 'true' }}
         run: |
           uv build
           uv publish --token ${{ secrets.PYPI_API_TOKEN }}
