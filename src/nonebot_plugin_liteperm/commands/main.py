@@ -18,9 +18,9 @@ class PermissionHandler(Protocol):
 @command.command("", rule=to_me()).handle()
 async def lp(event: MessageEvent, matcher: Matcher, args: Message = CommandArg()):
     args_list = args.extract_plain_text().strip().split()
-    lp_0_help = (
-        "LP LitePerms\n请输入参数\nlp user\nlp chat_group\nlp perm_group\nlp command\n"
-    )
-
     if not args_list:
+        lp_0_help = (
+            "LP LitePerms\n请输入参数\nlp user\nlp chat_group\nlp perm_group\nlp command\n"
+        )
+
         await matcher.finish(lp_0_help)

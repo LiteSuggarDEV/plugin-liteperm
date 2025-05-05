@@ -130,13 +130,14 @@ class Data_Manager:
         self, group_name: str, new: bool = False
     ) -> PermissionGroupData | None:
         data_path = self.permission_groups_path / f"{group_name}.json"
-        if not data_path.exists() and new:
-            data = PermissionGroupData()
-            with open(data_path, "w") as f:
-                json.dump(data.model_dump(), f)
-            return data
-        elif not data_path.exists():
-            return None
+        if not data_path.exists():
+            if not new:
+                return None
+            else:
+                data = PermissionGroupData()
+                with open(data_path, "w") as f:
+                    json.dump(data.model_dump(), f)
+                return data
         with open(data_path) as f:
             return PermissionGroupData(**json.load(f))
 

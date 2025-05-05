@@ -6,7 +6,9 @@ from typing import Any
 class Permissions:
     permissions_data: dict[str, str | dict | bool]
 
-    def __init__(self, permissions_data: dict[str, str | dict | bool] = {}) -> None:
+    def __init__(self, permissions_data: dict[str, str | dict | bool] | None = None) -> None:
+        if permissions_data is None:
+            permissions_data = {}
         self.permissions_data = permissions_data
 
     __permissions_str: str = ""

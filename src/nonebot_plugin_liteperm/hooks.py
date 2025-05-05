@@ -109,10 +109,9 @@ async def check_on_command(matcher: Matcher, event: Event):
                                                 ).permissions  # type: ignore
                                             ).check_permission(permission):
                                                 return
-                                        else:
-                                            raise IgnoredException(
-                                                f"Permission {permission} denied"
-                                            )
+                                        raise IgnoredException(
+                                            f"Permission {permission} denied"
+                                        )
                                     else:
                                         raise IgnoredException(
                                             f"Permission {permission} denied"

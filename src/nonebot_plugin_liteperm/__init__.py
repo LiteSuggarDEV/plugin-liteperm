@@ -17,7 +17,7 @@ __all__ = [
 ]
 
 __plugin_meta__ = PluginMetadata(
-    name="LitePerm 权限管理插件",  # type: ignore
+    name="LitePerm 权限管理插件",
     description="基于权限节点/权限组/特殊权限的权限管理插件。",
     usage="https://github.com/LiteSuggarDEV/plugin-liteperm/blob/main/README.md",
     homepage="https://github.com/LiteSuggarDEV/plugin-liteperm/",

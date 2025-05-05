@@ -92,15 +92,13 @@ class PermissionGroupHandler(PermissionHandler):
         if operation == "create":
             if data_manager.get_permission_group_data(group) is not None:
                 return "❌ 权限组已存在", {}
-            else:
-                data_manager.get_permission_group_data(group, True)
-                return "✅ 权限组创建成功", {}
+            data_manager.get_permission_group_data(group, True)
+            return "✅ 权限组创建成功", {}
         elif operation == "remove":
             if data_manager.get_permission_group_data(group) is None:
                 return "❌ 权限组不存在", {}
-            else:
-                data_manager.remove_permission_group(group)
-                return "✅ 权限组删除成功", {}
+            data_manager.remove_permission_group(group)
+            return "✅ 权限组删除成功", {}
         return "❌ 操作错误", {}
 
 def get_handler(
@@ -111,7 +109,7 @@ def get_handler(
         "parent": ParentGroupHandler(),
         "to":PermissionGroupHandler(),
     }
-    return handlers[action_type] if action_type in handlers else None
+    return handlers.get(action_type)
 
 
 # 运行进入点
