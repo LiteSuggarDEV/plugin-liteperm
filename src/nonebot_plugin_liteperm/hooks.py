@@ -5,8 +5,9 @@ from nonebot.exception import IgnoredException, NoneBotException
 from nonebot.matcher import Matcher
 from nonebot.message import event_preprocessor
 
-from .config import data_manager
+from .config import PermissionGroupData, data_manager
 from .nodelib import Permissions
+from .utils import GroupEvent
 
 driver = get_driver()
 command_starts = driver.config.command_start  # 获取配置的命令起始符（如 ["/", "!"]）
@@ -17,10 +18,10 @@ async def check_on_command(matcher: Matcher, event: Event):
     # 获取消息文本并去除首尾空格
     msg = event.get_message().extract_plain_text().strip()
     user_id = event.get_user_id()
-    if event.__class__.__name__.startswith("Group"):
-        group_id: str | None = event.group_id  # type: ignore
+    if isinstance(event, GroupEvent):
+        group_id: int | None = event.group_id
     else:
-        group_id = None
+        group_id: int | None = None
     # 遍历所有可能的命令起始符
     for start in command_starts:
         if msg.startswith(start):
@@ -80,7 +81,7 @@ async def check_on_command(matcher: Matcher, event: Event):
                                         return
                                     elif group_id is not None:
                                         group_data = data_manager.get_group_data(
-                                            group_id
+                                            str(group_id)
                                         )
                                         group_permissions = Permissions(
                                             group_data.permissions
@@ -91,22 +92,21 @@ async def check_on_command(matcher: Matcher, event: Event):
                                             return
                                         group_perm_groups = group_data.permission_groups
                                         for group_perm_group in group_perm_groups:
-                                            if (
+                                            data: PermissionGroupData | None = (
                                                 data_manager.get_permission_group_data(
                                                     group_perm_group
                                                 )
-                                                is None
-                                            ):
+                                            )
+                                            if data is None:
                                                 group_data.permission_groups.remove(
                                                     group_perm_group
                                                 )
                                                 data_manager.save_group_data(
-                                                    group_id, group_data.model_dump()
+                                                    str(group_id),
+                                                    group_data.model_dump(),
                                                 )
                                             elif Permissions(
-                                                data_manager.get_permission_group_data(
-                                                    group_perm_group
-                                                ).permissions  # type: ignore
+                                                data.permissions
                                             ).check_permission(permission):
                                                 return
                                         else:

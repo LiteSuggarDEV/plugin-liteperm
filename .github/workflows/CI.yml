@@ -21,6 +21,27 @@ jobs:
       - name: Set up Python
         run: uv python install
 
+      - name: Set environment
+        run: |
+          uv venv .venv
+          uv sync
+
+      - name: Install dependencies
+        run: |
+          pipx install nb-cli
+
+      - name: Get Python path
+        run: |
+          PYTHON_BIN="$(uv run python -c 'import sys; print(sys.executable)')"
+          echo "PYTHON_BIN=$PYTHON_BIN" >> $GITHUB_ENV
+
+      - name: Run Pyright
+        uses: jakebailey/pyright-action@v2
+        with:
+          python-path: ${{ env.PYTHON_BIN }}
+          pylance-version: latest-release
+
+
       - name: Build package
         run: uv build  # 生成构建产物到dist目录
 

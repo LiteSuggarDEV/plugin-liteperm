@@ -75,12 +75,11 @@ class UserPermissionChecker(PermissionChecker):
         perm_groups = user_data.permission_groups
 
         for permg in perm_groups:
-            if data_manager.get_permission_group_data(permg) is None:
+            group_data: PermissionGroupData | None = (
+                data_manager.get_permission_group_data(permg)
+            )
+            if group_data is None:
                 raise ValueError(f"permission group {permg} not found")
-            else:
-                group_data: PermissionGroupData = (
-                    data_manager.get_permission_group_data(permg)
-                )  # type: ignore
             if Permissions(group_data.permissions).check_permission(perm):
                 return True
         return Permissions(user_data.model_dump()).check_permission(perm)
@@ -109,8 +108,8 @@ class GroupPermissionChecker(PermissionChecker):
         logger.debug(f"checking group permission {group_id} {perm}")
         perm_groups = group_data.permission_groups
         for permg in perm_groups:
-            if Permissions(
-                data_manager.get_permission_group_data(permg).permissions  # type: ignore
-            ).check_permission(perm):
-                return True
+            if (data := data_manager.get_permission_group_data(permg)) is not None:
+                if Permissions(data.permissions).check_permission(perm):
+                    return True
+
         return Permissions(group_data.model_dump()).check_permission(perm)
