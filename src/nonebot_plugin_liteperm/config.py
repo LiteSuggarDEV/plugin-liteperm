@@ -45,7 +45,6 @@ class CommandConfig(BasicDataModel):
 
 
 class Config(BasicDataModel):
-    config_version: int = 1
     cmd_permission_checker: bool = True
 
     def save_to_toml(self, path: Path):

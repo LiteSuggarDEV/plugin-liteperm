@@ -1,99 +1,70 @@
-# plugin-liteperm
+# NoneBot Plugin LitePerms 文档
+
+<div align="center">
+  <a href="https://github.com/JohnRichard4096/nonebot_plugin_liteperm/">
+    <img src="https://github.com/user-attachments/assets/b5162036-5b17-4cf4-b0cb-8ec842a71bc6" width="200" alt="SuggarChat Logo">
+  </a>
+  <h1>LitePerms</h1>
+  <h3>权限节点权限管理插件</h3>
+
+  <p>
+    <a href="https://pypi.org/project/nonebot-plugin-liteperm/">
+      <img src="https://img.shields.io/pypi/v/nonebot-plugin-liteperm?color=blue&style=flat-square" alt="PyPI Version">
+    </a>
+    <a href="https://www.python.org/">
+      <img src="https://img.shields.io/badge/python-3.9+-blue?logo=python&style=flat-square" alt="Python Version">
+    </a>
+    <a href="https://nonebot.dev/">
+      <img src="https://img.shields.io/badge/nonebot2-2.0.0rc4+-blue?style=flat-square" alt="NoneBot Version">
+    </a>
+    <a href="LICENSE">
+      <img src="https://img.shields.io/github/license/LiteSuggarDEV/plugin-liteperm?style=flat-square" alt="License">
+    </a>
+    <a href="https://qm.qq.com/q/PFcfb4296m">
+      <img src="https://img.shields.io/badge/QQ%E7%BE%A4-1002495699-blue?style=flat-square" alt="QQ Group">
+    </a>
+  </p>
+</div>
+
 
 基于权限节点+特殊权限+权限组的依赖权限管理插件！
 
 >本项目灵感来自于[LuckPerms](https://github.com/LuckPerms/LuckPerms)
 
-# NoneBot Plugin LitePerms 文档
+## 特性
 
-## 📖 指令文档
+- 节点权限管理
+- 特殊权限管理
+- 权限组管理
+- 特定指令权限管理
 
-### 通用命令结构
+## 快速开始
 
-```
-/lp [对象类型] [操作类型] [操作] [目标] [值]
-```
+### 安装
 
----
+- 使用pip安装
 
-### 用户权限管理 (lp user)
+  ```bash
+  pip install nonebot-plugin-liteperm
+  ```
 
-```
-/lp user [用户ID] [操作类型] [操作] [目标节点/组] [值]
-```
+- 使用uv安装
 
-**操作类型**：
+  ```bash
+  uv add nonebot-plugin-liteperm
+  ```
 
-1. **permission** - 直接权限管理
-   - `set [节点] [true/false]`：设置权限节点状态
-   - `del [节点]`：删除权限节点
-   - `check [节点]`：检查权限节点
-   - `list`：列出所有权限
+### 启用
 
-2. **parent** - 继承组管理
-   - `add [组名]`：添加继承组
-   - `del [组名]`：移除继承组
-   - `set [组名]`：覆盖为指定组的权限
+修改`pyproject.toml`，在`[tool.nonebot]`下的`plugins = ["nonebot_plugin_liteperm"]`添加插件
 
-3. **perm_group** - 权限组管理
-   - `add [组名]`：添加权限组
-   - `del [组名]`：移除权限组
+## 配置
 
-**示例**：
-
-```
-/lp user 123456 permission set lp.admin true
-/lp user 123456 parent add admin_group
+```toml
+# 是否启用指令权限检查
+cmd_permission_checker=true
 ```
 
----
+## [指令文档](docs/commands.md)
 
-### 群组权限管理 (lp group)
-
-```
-/lp group [群号] [操作类型] [操作] [目标节点/组] [值]
-```
-
-（参数格式与用户权限管理相同）
-
----
-
-### 权限组管理 (lp perm_group)
-
-```
-/lp perm_group [组名] [操作类型] [操作] [目标节点/组] [值]
-```
-
-**新增操作类型**：
-
-- **to** - 组操作
-  - `create`：创建新权限组
-  - `remove`：删除权限组
-
-**示例**：
-
-```
-/lp perm_group admin to create
-/lp perm_group admin permission set system.* true
-```
-
----
-
-### 命令权限管理 (lp command)
-
-```
-/lp command [命令名] [操作类型] [操作] [权限节点] [值]
-```
-
-**操作类型**：
-
-- [set_permission](file:///home/johnrichard/LiteSuggarDEV/plugin-liteperm/src/nonebot_plugin_liteperm/nodelib.py#L59-L74)：设置命令权限节点
-- `command del`：删除命令权限配置
-
-**示例**：
-
-```
-/lp command ping set_permission lp.user.ping true
-```
-
----
+## [API文档](docs/API.md)
