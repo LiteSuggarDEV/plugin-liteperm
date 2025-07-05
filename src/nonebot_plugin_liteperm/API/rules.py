@@ -48,7 +48,7 @@ class PermissionChecker:
         """
 
         # 捕获当前权限值到闭包中
-        current_perm = self.permission if self.permission else ""
+        current_perm = self.permission or ""
 
         async def _checker(event: Event, current_perm=current_perm) -> bool:
             """实际执行检查的协程函数"""
@@ -99,9 +99,9 @@ class GroupPermissionChecker(PermissionChecker):
     async def _check_permission(self, event: Event, perm: str) -> bool:
         if not isinstance(event, GroupEvent) and not self.only_group:
             return True
-        elif not isinstance(event, GroupEvent) and self.only_group:
+        elif not isinstance(event, GroupEvent):
             return False
-        elif isinstance(event, GroupEvent):
+        else:
             g_event: GroupEvent = event
         group_id: str = str(g_event.group_id)
         group_data = data_manager.get_group_data(group_id)

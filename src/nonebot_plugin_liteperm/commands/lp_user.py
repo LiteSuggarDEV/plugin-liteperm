@@ -112,7 +112,7 @@ def get_handler(
         "parent": ParentGroupHandler(),
         "perm_group": PermissionGroupHandler(),
     }
-    return handlers[action_type] if action_type in handlers else None
+    return handlers.get(action_type)
 
 
 # 运行进入点

@@ -39,10 +39,9 @@ class DelPermissionSetting(PermissionHandler):
     ) -> tuple[str, dict[str, Any]]:
         result = "❌ 操作失败"
         command_data = data_manager.get_command_settings()
-        if operation == "del":
-            if command in command_data.commands:
-                del command_data.commands[command]
-                result = "✅ 操作成功"
+        if operation == "del" and command in command_data.commands:
+            del command_data.commands[command]
+            result = "✅ 操作成功"
         return result, command_data.model_dump()
 
 
@@ -67,7 +66,7 @@ def get_handler(
         "command": DelPermissionSetting(),
         "list": ListHandler(),
     }
-    return handlers[action_type] if action_type in handlers else None
+    return handlers.get(action_type)
 
 
 @command.command("command", permission=is_lp_admin).handle()
