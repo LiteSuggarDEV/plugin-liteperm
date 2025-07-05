@@ -7,7 +7,7 @@ from typing import Any
 import tomli
 import tomli_w
 from nonebot_plugin_localstore import get_plugin_config_dir, get_plugin_data_dir
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 plugin_data_dir = get_plugin_data_dir()
 config_dir = get_plugin_config_dir()
@@ -45,7 +45,10 @@ class CommandConfig(BasicDataModel):
 
 
 class Config(BasicDataModel):
-    cmd_permission_checker: bool = True
+    cmd_permission_checker: bool = Field(
+        default=True,
+        description="是否开启命令权限检查",
+    )
 
     def save_to_toml(self, path: Path):
         """保存配置到 TOML 文件"""
