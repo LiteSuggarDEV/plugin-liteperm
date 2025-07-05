@@ -78,7 +78,7 @@ class Data_Manager:
     permission_groups_path: Path = plugin_data_dir / "permission_groups"
     config_path: Path = config_dir / "config.toml"
     cmd_settings_path = plugin_data_dir / "command_settings.json"
-    config: Config = field(default=Config())
+    config: Config = field(default_factory = Config)
 
     def init(self):
         os.makedirs(self.group_data_path, exist_ok=True)
