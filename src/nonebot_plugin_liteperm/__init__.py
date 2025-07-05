@@ -1,15 +1,19 @@
 from nonebot.plugin import PluginMetadata, require
 
 require("nonebot_plugin_localstore")
-from . import command_manager, config, hooks, on_init
-from .commands import lp_chat_group, lp_command, lp_perm_group, lp_user, main
+from . import command_manager, config, on_init
+
+# ,hooks
+from .commands import lp_chat_group, lp_perm_group, lp_user, main
+
+# ,lp_command
 
 __all__ = [
     "command_manager",
     "config",
-    "hooks",
+    #    "hooks",
     "lp_chat_group",
-    "lp_command",
+    # "lp_command",
     "lp_perm_group",
     "lp_user",
     "main",

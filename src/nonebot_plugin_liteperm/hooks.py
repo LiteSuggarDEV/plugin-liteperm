@@ -1,3 +1,4 @@
+"""
 import nonebot.matcher as nbm
 from nonebot import get_driver, logger
 from nonebot.adapters import Event
@@ -14,7 +15,7 @@ command_starts = driver.config.command_start  # 获取配置的命令起始符�
 
 
 @event_preprocessor
-async def check_on_command(matcher: Matcher, event: Event):
+async def check_on_command(event: Event):
     # 获取消息文本并去除首尾空格
     msg = event.get_message().extract_plain_text().strip()
     user_id = event.get_user_id()
@@ -122,3 +123,5 @@ async def check_on_command(matcher: Matcher, event: Event):
                         raise e
                     except Exception as e:
                         logger.error(f"Matcher检查错误: {e}")
+
+"""
