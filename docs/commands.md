@@ -120,38 +120,6 @@
 
 </details>
 
-## 指令权限管理
-
-<details>
-
-### `lp command` - 命令权限设置
-
-- **格式**：`lp command <命令名> <操作类型> <操作> [节点] [值]`
-- **操作类型**：
-  - `set_permission` - 设置命令权限
-  - `command` - 命令管理
-  - `list` - 列表查看
-
-#### 权限设置 (`set_permission`)
-
-| 操作      | 格式                              | 示例                     | 说明                     |
-|-----------|-----------------------------------|--------------------------|--------------------------|
-| `set`     | `lp command <命令> set_permission set <节点> <true/false>` | `lp command lp.admin set_permission set user.edit true` | 设置命令权限节点         |
-| `del`     | `lp command <命令> set_permission del <节点>` | `lp command lp.admin set_permission del user.edit` | 删除命令权限节点         |
-
-#### 命令管理 (`command`)
-
-| 操作      | 格式                              | 示例                     | 说明                     |
-|-----------|-----------------------------------|--------------------------|--------------------------|
-| `del`     | `lp command <命令> command del`   | `lp command lp.user command del` | 删除命令的所有权限设置   |
-
-#### 列表查看 (`list`)
-
-| 操作      | 格式                              | 示例                     | 说明                     |
-|-----------|-----------------------------------|--------------------------|--------------------------|
-| `list`    | `lp command list`                 | `lp command list`        | 列出所有已配置的命令权限 |
-
-</details>
 
 ## 通用参数说明
 

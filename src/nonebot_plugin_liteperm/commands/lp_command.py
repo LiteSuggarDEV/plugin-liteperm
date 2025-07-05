@@ -1,3 +1,4 @@
+"""
 import asyncio
 from typing import Any, override
 
@@ -90,3 +91,5 @@ async def lp_user(
                 data_manager.save_command_settings(CommandConfig(**data))
 
     await matcher.finish(result)
+
+"""

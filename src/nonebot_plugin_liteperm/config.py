@@ -40,8 +40,10 @@ class PermissionGroupData(BasicDataModel):
     permissions: dict[str, str | dict | bool] = {}
 
 
+"""
 class CommandConfig(BasicDataModel):
     commands: dict[str, dict[str, bool]] = {"lp.user": {"lp.admin": True}}
+"""
 
 
 class Config(BasicDataModel):
@@ -77,8 +79,8 @@ class Data_Manager:
     user_data_path: Path = plugin_data_dir / "user_data"
     permission_groups_path: Path = plugin_data_dir / "permission_groups"
     config_path: Path = config_dir / "config.toml"
-    cmd_settings_path = plugin_data_dir / "command_settings.json"
-    config: Config = field(default_factory = Config)
+    # cmd_settings_path = plugin_data_dir / "command_settings.json"
+    config: Config = field(default_factory=Config)
 
     def init(self):
         os.makedirs(self.group_data_path, exist_ok=True)
@@ -90,6 +92,8 @@ class Data_Manager:
             self.config.save_to_toml(self.config_path)
         else:
             self.config = Config.load_from_toml(self.config_path)
+
+        """
         if not self.cmd_settings_path.exists():
             cmd_settings = CommandConfig()
             with open(self.cmd_settings_path, "w") as f:
@@ -97,6 +101,7 @@ class Data_Manager:
         else:
             with open(self.cmd_settings_path) as f:
                 self.cmd_settings = CommandConfig.model_validate_json(f.read())
+"""
 
     def save_user_data(self, user_id: str, data: dict[str, str | dict | bool]):
         UserData.model_validate(data)
@@ -158,6 +163,8 @@ class Data_Manager:
         with open(data_path) as f:
             return UserData(**json.load(f))
 
+
+"""
     def get_command_settings(self):
         with open(self.cmd_settings_path) as f:
             return CommandConfig(**json.load(f))
@@ -165,6 +172,6 @@ class Data_Manager:
     def save_command_settings(self, data: CommandConfig):
         with open(self.cmd_settings_path, "w") as f:
             json.dump(data.model_dump(), f)
-
+"""
 
 data_manager = Data_Manager()
