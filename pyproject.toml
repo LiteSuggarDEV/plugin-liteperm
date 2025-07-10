@@ -1,6 +1,6 @@
 [project]
 name = "nonebot_plugin_liteperm"
-version = "0.0.1.post3"
+version = "0.0.2"
 description = "基于权限节点/权限组/特殊权限的Nonebot权限管理插件。"
 authors = [
     { name = "JohnRichard4096", email = "windowserror@163.com" },
@@ -14,14 +14,10 @@ dependencies = [
     "tomli>=2.2.1",
     "tomli-w>=1.2.0",
 ]
-requires-python = ">=3.9, <4.0"
+requires-python = ">=3.10, <4.0"
 readme = "README.md"
 license = { text = "GPL-3.0-or-later" }
 keywords = ['nonebot']
-[build-system]
-requires = ['pdm-backend']
-build-backend = "pdm.backend"
-
 
 [tool.pdm]
 distribution = true

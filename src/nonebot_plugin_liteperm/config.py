@@ -15,15 +15,7 @@ os.makedirs(plugin_data_dir, exist_ok=True)
 os.makedirs(config_dir, exist_ok=True)
 
 
-class BasicDataModel(BaseModel, extra="allow"):
-    def __getattr__(self, item) -> str:
-        if item in self.__dict__:
-            return self.__dict__[item]
-        if self.__pydantic_extra__ and item in self.__pydantic_extra__:
-            return self.__pydantic_extra__[item]
-        raise AttributeError(
-            f"'{self.__class__.__name__}' object has no attribute '{item}'"
-        )
+class BasicDataModel(BaseModel, extra="allow"): ...
 
 
 class UserData(BasicDataModel):
@@ -40,17 +32,8 @@ class PermissionGroupData(BasicDataModel):
     permissions: dict[str, str | dict | bool] = {}
 
 
-"""
-class CommandConfig(BasicDataModel):
-    commands: dict[str, dict[str, bool]] = {"lp.user": {"lp.admin": True}}
-"""
-
-
 class Config(BasicDataModel):
-    cmd_permission_checker: bool = Field(
-        default=True,
-        description="是否开启命令权限检查",
-    )
+    enable: bool = Field(default=True, description="是否启用插件")
 
     def save_to_toml(self, path: Path):
         """保存配置到 TOML 文件"""

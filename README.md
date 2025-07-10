@@ -1,10 +1,10 @@
-# NoneBot Plugin LitePerms 文档
+# NoneBot Plugin LitePerm 文档
 
 <div align="center">
   <a href="https://github.com/JohnRichard4096/nonebot_plugin_liteperm/">
     <img src="https://github.com/user-attachments/assets/b5162036-5b17-4cf4-b0cb-8ec842a71bc6" width="200" alt="SuggarChat Logo">
   </a>
-  <h1>LitePerms</h1>
+  <h1>LitePerm</h1>
   <h3>权限节点权限管理插件</h3>
 
   <p>
@@ -58,13 +58,13 @@
 
 修改`pyproject.toml`，在`[tool.nonebot]`下的`plugins = ["nonebot_plugin_liteperm"]`添加插件
 
-## 配置
-
-```toml
-# 是否启用指令权限检查
-cmd_permission_checker=true
-```
 
 ## [指令文档](docs/commands.md)
 
 ## [API文档](docs/API.md)
+
+## 内置权限节点
+
+| 权限节点 | 权限描述 |
+| --- | --- |
+| `liteperm.admin` | LitePerm管理员 |

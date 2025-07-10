@@ -4,7 +4,7 @@
 
 - **格式**：/lp
 - **功能**：显示插件帮助信息
-- **响应**：LP LitePerms 请输入参数： lp user lp group lp perm_group lp command
+- **响应**：LP LitePerm 请输入参数： lp user lp group lp perm_group lp command
 
 ## 用户权限管理
 
