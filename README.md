@@ -42,10 +42,10 @@
 
 ### 安装
 
-- 使用pip安装
+- 使用nb-cli安装
 
   ```bash
-  pip install nonebot-plugin-liteperm
+  nb plugin install nonebot-plugin-liteperm
   ```
 
 - 使用uv安装
