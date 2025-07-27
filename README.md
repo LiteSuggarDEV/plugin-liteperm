@@ -42,10 +42,10 @@
 
 ### 安装
 
-- 使用pip安装
+- 使用nb-cli安装
 
   ```bash
-  pip install nonebot-plugin-liteperm
+  nb plugin install nonebot-plugin-liteperm
   ```
 
 - 使用uv安装
@@ -58,13 +58,12 @@
 
 修改`pyproject.toml`，在`[tool.nonebot]`下的`plugins = ["nonebot_plugin_liteperm"]`添加插件
 
-
-## [指令文档](docs/commands.md)
-
-## [API文档](docs/API.md)
-
 ## 内置权限节点
 
 | 权限节点 | 权限描述 |
 | --- | --- |
 | `liteperm.admin` | LitePerm管理员 |
+
+## 文档
+
+[点击前往](https://docs.suggar.top/project/liteperm/)
