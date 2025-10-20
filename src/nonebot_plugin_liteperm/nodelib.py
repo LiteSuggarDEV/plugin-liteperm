@@ -6,7 +6,9 @@ from typing import Any
 class Permissions:
     permissions_data: dict[str, str | dict | bool]
 
-    def __init__(self, permissions_data: dict[str, str | dict | bool] | None = None) -> None:
+    def __init__(
+        self, permissions_data: dict[str, str | dict | bool] | None = None
+    ) -> None:
         if permissions_data is None:
             permissions_data = {}
         self.permissions_data = permissions_data
@@ -95,14 +97,21 @@ class Permissions:
         return current_node["has_permission"] if current_node else False
 
     def dump_to_file(self, filename: str):
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding="utf-8") as f:
             json.dump(self.permissions_data, f, indent=4)
         self.__dump_to_str(overwrite=True)
 
     def load_from_json(self, filename: str):
-        with open(filename) as f:
+        with open(filename, encoding="utf-8") as f:
             self.permissions_data = json.load(f)
         self.__dump_to_str(overwrite=True)
+
+    def from_perm_str(self, perm_str: str):
+        for line in perm_str.split("\n"):
+            if line.strip() == "":
+                continue
+            node, permission = line.split(" ")
+            self.set_permission(node.strip(), permission.strip().lower() == "true")
 
     def dump_data(self) -> dict[str, Any]:
         return self.permissions_data.copy()
@@ -122,16 +131,17 @@ class Permissions:
 
     @property
     def permissions_str(self) -> str:
+        self.__dump_to_str(True)
         return self.__permissions_str
 
 
-# 此处仅用于测试，理论上运行时不会触发。
+# 此处仅用于测试
 if __name__ == "__main__":
     permissions = Permissions({})
     permissions.set_permission("user.read", True)
     permissions.set_permission("user.write", True)
     permissions.set_permission("user.*", True)
-    permissions.set_permission("user", True)
+    permissions.set_permission("user", False)
     permissions.set_permission("children", True)
     permissions.set_permission("children.read", True)
     permissions.set_permission("children.children", True)

@@ -13,7 +13,6 @@ banner_template = """\033[34m▗▖   ▗▄▄▖
 
 @get_driver().on_startup
 async def load_config():
-
     version = "unknown"
     try:
         version = get_version("nonebot-plugin-liteperm")

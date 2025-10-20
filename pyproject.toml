@@ -1,6 +1,6 @@
 [project]
 name = "nonebot_plugin_liteperm"
-version = "0.0.2"
+version = "0.1.0"
 description = "基于权限节点/权限组/特殊权限的Nonebot权限管理插件。"
 authors = [
     { name = "JohnRichard4096", email = "windowserror@163.com" },
